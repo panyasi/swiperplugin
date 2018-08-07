@@ -105,18 +105,18 @@ class swiper{
 
 
 	_swiperPrev(){
-		let prevIndex = this.state.index - 1;
-		this._gotoIndex(prevIndex)
+		let prev_index = this.state.index - 1;
+		this._gotoIndex(prev_index)
 		console.log('prev',this.state.index)
 	}
 	_swiperNext(){
-		let nextIndex = this.state.index + 1;
-		this._gotoIndex(nextIndex)
+		let next_index = this.state.index + 1;
+		this._gotoIndex(next_index)
 		console.log('next',this.state.index)
 	}
 	_swiperSwitch(e){
-		let activeIndex = Number(e.target.getAttribute("data-value"));
-		this._gotoIndex(activeIndex)
+		let active_index = Number(e.target.getAttribute("data-value"));
+		this._gotoIndex(active_index)
 		console.log('active',this.state.index)
 	}
 	_resetSwiperWidth(){
@@ -140,7 +140,6 @@ class swiper{
 			console.log(this.state._isLock,"change")
         }
 			
-        let that = this;
 		let timer = setInterval(()=>{
 			if(count>0){
 				count --;
@@ -150,8 +149,10 @@ class swiper{
 				this.state._swiperList.style.left = -(swiperItemWidth * index) - newleft + "px";
 			}else{
 				if(index == -1){
+					console.log(this)
 					console.log("index=-1")
 					index = swiperItemLen - 1;
+					console.log(index)
 					this.state._swiperList.style.left = -swiperItemWidth*swiperItemLen + "px";
 				}
 				if(index == swiperItemLen){
@@ -159,12 +160,15 @@ class swiper{
 					index = 0;
 					this.state._swiperList.style.left = -swiperItemWidth + "px";
 				}
-				clearInterval(timer)
-				that.state._isLock = false;
-			}
-		},2000);
+				console.log(this)
+				this.state.index = index;
 
-		this.state.index = index;
+				clearInterval(timer)
+				this.state._isLock = false;
+			}
+		},200);
+		console.log(index)
+
 		// for(let i = 0;i < this.state._swiperItemLen;i++){
 		// 	let allPagination = document.getElementsByClassName("swiper-pagination-switch")[i];
 		// 	allPagination.setAttribute("class","swiper-pagination-switch")

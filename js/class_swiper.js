@@ -4,10 +4,10 @@ class swiper{
 			className: props.className,
 			imgUrl: props.imgUrl,
 			index: 0,
-			isLock: false,
 			time: 300,//位移总时间
 			interval: 10,//间隔
 			swiperTimer:null,
+			_isLock: false,
 			_swiperItemLen: props.swiperItemlen,
 			_swiperItemWidth:null,
 			_swiperList:null,
@@ -87,9 +87,9 @@ class swiper{
 		swiperArrowRight.addEventListener('click',this._swiperNext.bind(this));
 		swiperPagination.addEventListener('click',this._swiperSwitch.bind(this));
 		window.addEventListener('resize',this._resetSwiperWidth.bind(this));
-		swiperContainer.addEventListener('mouseover',this.stopAutoPlay.bind(this));
-		swiperContainer.addEventListener('mouseout',this.autoPlay.bind(this));
-		this.autoPlay();
+		// swiperContainer.addEventListener('mouseover',this.stopAutoPlay.bind(this));
+		// swiperContainer.addEventListener('mouseout',this.autoPlay.bind(this));
+		// this.autoPlay();
 	}
 
 
@@ -99,25 +99,24 @@ class swiper{
    		},5000)
    }
 
-
-   stopAutoPlay(){
+   	stopAutoPlay(){
    		clearInterval(this.state.swiperTimer);
-   }
+   	}
 
 
 	_swiperPrev(){
-		this.state.index = this.state.index - 1;
-		this._gotoIndex()
+		let prevIndex = this.state.index - 1;
+		this._gotoIndex(prevIndex)
 		console.log('prev',this.state.index)
 	}
 	_swiperNext(){
-		this.state.index = this.state.index + 1;
-		this._gotoIndex()
+		let nextIndex = this.state.index + 1;
+		this._gotoIndex(nextIndex)
 		console.log('next',this.state.index)
 	}
 	_swiperSwitch(e){
-		this.state.index = Number(e.target.getAttribute("data-value"));
-		this._gotoIndex()
+		let activeIndex = Number(e.target.getAttribute("data-value"));
+		this._gotoIndex(activeIndex)
 		console.log('active',this.state.index)
 	}
 	_resetSwiperWidth(){
@@ -127,51 +126,52 @@ class swiper{
 		this.state._swiperList.style.left = -translateX + "px";
 		this.state._swiperItemWidth = swiperItemWidth;
 	}
-	_gotoIndex(){
+	_gotoIndex(index){
 		let swiperItemLen = this.state._swiperItemLen;
 		let swiperItemWidth = this.state._swiperItemWidth;
-		let isLock = this.state.isLock;
 		let newleft = null;
 		let count = this.state.time/this.state.interval;//次数
-		console.log(this.state.isLock,"origin")	
+		let isLock = this.state._isLock;
 		if(isLock){
           return
           console.log("return")
         }else{
 			this.state.isLock = true;
-			console.log(this.state.isLock,"change")
+			console.log(this.state._isLock,"change")
         }
-        
+			
+        let that = this;
 		let timer = setInterval(()=>{
 			if(count>0){
 				count --;
 				let eachleft = swiperItemWidth/(this.state.time/this.state.interval);//每次位移量
 				newleft += eachleft;
-				console.log(this.state.index)
-				this.state._swiperList.style.left = -(swiperItemWidth * this.state.index) - newleft + "px";
+				console.log(index)
+				this.state._swiperList.style.left = -(swiperItemWidth * index) - newleft + "px";
 			}else{
+				if(index == -1){
+					console.log("index=-1")
+					index = swiperItemLen - 1;
+					this.state._swiperList.style.left = -swiperItemWidth*swiperItemLen + "px";
+				}
+				if(index == swiperItemLen){
+					console.log("index=len-1")
+					index = 0;
+					this.state._swiperList.style.left = -swiperItemWidth + "px";
+				}
 				clearInterval(timer)
+				that.state._isLock = false;
 			}
-		},20);
+		},2000);
 
-		if(this.state.index === -1){
-			console.log("index=-1")
-			this.state.index = swiperItemLen - 1;
-			this.state._swiperList.style.left = -swiperItemWidth*swiperItemLen + "px";
-		}
-		if(this.state.index === swiperItemLen){
-			console.log("index=len-1")
-			this.state.index = 0;
-			this.state._swiperList.style.left = -swiperItemWidth + "px";
-		}
-		for(let i = 0;i < this.state._swiperItemLen;i++){
-			let allPagination = document.getElementsByClassName("swiper-pagination-switch")[i];
-			allPagination.setAttribute("class","swiper-pagination-switch")
-			let activePagination = document.getElementsByClassName("swiper-pagination-switch")[this.state.index];
-			activePagination.setAttribute("class","swiper-pagination-switch active")
-		}
-		// this.state.isLock = false;
-	
+		this.state.index = index;
+		// for(let i = 0;i < this.state._swiperItemLen;i++){
+		// 	let allPagination = document.getElementsByClassName("swiper-pagination-switch")[i];
+		// 	allPagination.setAttribute("class","swiper-pagination-switch")
+		// 	let activePagination = document.getElementsByClassName("swiper-pagination-switch")[this.state.index];
+		// 	activePagination.setAttribute("class","swiper-pagination-switch active")
+		// }
+
 	}
 }
 

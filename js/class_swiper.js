@@ -9,8 +9,10 @@ class swiper{
 			swiperTimer:null,
 			_isLock: false,
 			_swiperItemLen: props.swiperItemlen,
+			_swiperItem:null,
 			_swiperItemWidth:null,
 			_swiperList:null,
+			_translateStart: null,
 			
 		};
 
@@ -36,8 +38,8 @@ class swiper{
 			let swiperPaginationSwitch = this._createElement('span');
 			this._appendChild(swiperList,swiperItem);
 			this._appendChild(swiperPagination,swiperPaginationSwitch);
-			swiperPaginationSwitch.setAttribute("data-value",i)
-			swiperItem.setAttribute("data-index",i)
+			swiperPaginationSwitch.setAttribute("data-value",i);
+			swiperItem.setAttribute("data-index",i);
 			swiperItem.setAttribute("class","swiper-item");
 			swiperItem.style.backgroundImage = "url( '"+ this.state.imgUrl[i] +"' )";	
 			swiperItem.style.backgroundPosition = "center";
@@ -78,6 +80,7 @@ class swiper{
 		console.log(this.state._swiperItemWidth)
 		//重设偏移值
 		swiperList.style.left = -this.state._swiperItemWidth + "px";
+		this.state._translateStart = this.state._swiperItemWidth
 		//存储swiperList
 		this.state._swiperList = swiperList;
 		console.log(this.state._swiperList)
@@ -124,55 +127,59 @@ class swiper{
 		let swiperItemWidth = document.getElementsByClassName('swiper-item')[0].offsetWidth;
 		let translateX = swiperItemWidth + swiperItemWidth * active_index;
 		this.state._swiperList.style.left = -translateX + "px";
+		console.log(this.state._translateStart)
 		this.state._swiperItemWidth = swiperItemWidth;
+		this.state._translateStart = swiperItemWidth;
 	}
 	_gotoIndex(index){
-		let swiperItemLen = this.state._swiperItemLen;
-		let swiperItemWidth = this.state._swiperItemWidth;
-		let newleft = null;
-		let count = this.state.time/this.state.interval;//次数
 		let isLock = this.state._isLock;
 		if(isLock){
           return
           console.log("return")
         }else{
-			this.state.isLock = true;
-			console.log(this.state._isLock,"change")
+			this.state._isLock = true;
         }
-			
+		let swiperItemLen = this.state._swiperItemLen;
+		let swiperItemWidth = this.state._swiperItemWidth;
+		let newleft = null;
+		let count = this.state.time/this.state.interval;//次数
+		let translateStart = this.state._translateStart
 		let timer = setInterval(()=>{
 			if(count>0){
 				count --;
-				let eachleft = swiperItemWidth/(this.state.time/this.state.interval);//每次位移量
+				console.log(index,"move")
+				let eachleft = ((swiperItemWidth + swiperItemWidth * index) + translateStart)/(this.state.time/this.state.interval);//每次位移量
 				newleft += eachleft;
-				console.log(index)
-				this.state._swiperList.style.left = -(swiperItemWidth * index) - newleft + "px";
+				this.state._swiperList.style.left = -(translateStart + newleft) + "px";
 			}else{
+				this.state._translateStart = (swiperItemWidth + swiperItemWidth * index)
 				if(index == -1){
-					console.log(this)
-					console.log("index=-1")
+					console.log("index = -1")
 					index = swiperItemLen - 1;
-					console.log(index)
-					this.state._swiperList.style.left = -swiperItemWidth*swiperItemLen + "px";
+					console.log("index变成2",index)
+					this.state._swiperList.style.left = -(swiperItemWidth * swiperItemLen) + "px";
+					this.state._translateStart = swiperItemWidth * swiperItemLen
+					console.log(this.state._translateStart)
 				}
 				if(index == swiperItemLen){
-					console.log("index=len-1")
+					console.log("index = len-1 2")
 					index = 0;
 					this.state._swiperList.style.left = -swiperItemWidth + "px";
+					this.state._translateStart = swiperItemWidth
 				}
-				console.log(this)
 				this.state.index = index;
-
+				console.log(index,"end")
 				clearInterval(timer)
 				this.state._isLock = false;
 			}
-		},200);
+		},50);
 		console.log(index)
+		console.log(translateStart,"translateStart")
 
 		// for(let i = 0;i < this.state._swiperItemLen;i++){
 		// 	let allPagination = document.getElementsByClassName("swiper-pagination-switch")[i];
 		// 	allPagination.setAttribute("class","swiper-pagination-switch")
-		// 	let activePagination = document.getElementsByClassName("swiper-pagination-switch")[this.state.index];
+		// 	let activePagination = document.getElementsByClassName("swiper-pagination-switch")[index];
 		// 	activePagination.setAttribute("class","swiper-pagination-switch active")
 		// }
 

@@ -9,8 +9,9 @@ class swiper{
 			swiperTimer:null,
 			_isLock: false,
 			_swiperItemLen: props.swiperItemlen,
-			_swiperItem:null,
+			_swiperItem: null,
 			_swiperItemWidth:null,
+			_swiperPagination: null,
 			_swiperList:null,
 			_translateStart: null,
 			
@@ -33,6 +34,8 @@ class swiper{
 		let swiperContainer = $(`.${this.state.className}`);
 		let swiperList = this._createElement('div');
 		let swiperPagination = this._createElement('div');
+		let arrSwiperItem = [];
+		let arrswiperPagination = [];
 		for(let i = 0;i < this.state._swiperItemLen;i++){
 			let swiperItem = this._createElement('a');
 			let swiperPaginationSwitch = this._createElement('span');
@@ -44,13 +47,19 @@ class swiper{
 			swiperItem.style.backgroundImage = "url( '"+ this.state.imgUrl[i] +"' )";	
 			swiperItem.style.backgroundPosition = "center";
 			swiperItem.style.backgroundSize = "cover";
+			arrSwiperItem.push(swiperItem)
+			arrswiperPagination.push(swiperPaginationSwitch) 
+			this.state._swiperItem = arrSwiperItem;
+			this.state._swiperPagination = arrswiperPagination;
 			if(i == 0){
 				swiperPaginationSwitch.setAttribute("class","swiper-pagination-switch active")
 			}else{
 				swiperPaginationSwitch.setAttribute("class","swiper-pagination-switch")
 			}
 		}
-		
+
+
+		console.log(this.state._swiperItem)
 		let swiperArrowLeft = this._createElement('a');
 		let swiperArrowRight = this._createElement('a');
 		let arrowLeftImg = this._createElement('img');
@@ -69,14 +78,14 @@ class swiper{
 		this._appendChild(swiperArrowLeft,arrowLeftImg);
 		this._appendChild(swiperArrowRight,arrowRihgtImg);
 		//克隆第一和最后一个项目并插入节点
-		let firstItem = document.getElementsByClassName('swiper-item')[0];
-		let lastItem = document.getElementsByClassName('swiper-item')[this.state._swiperItemLen-1];
+		let firstItem = this.state._swiperItem[0];
+		let lastItem = this.state._swiperItem[this.state._swiperItemLen-1];
 		let cloneFirstItem = firstItem.cloneNode();
 		let cloneLastItem = lastItem.cloneNode();
 		this._appendChild(swiperList,cloneFirstItem);
 		this._insertBefore(swiperList,cloneLastItem);
 		//获取Item宽度
-		this.state._swiperItemWidth = document.getElementsByClassName('swiper-item')[0].offsetWidth;
+		this.state._swiperItemWidth = this.state._swiperItem[0].offsetWidth;
 		console.log(this.state._swiperItemWidth)
 		//重设偏移值
 		swiperList.style.left = -this.state._swiperItemWidth + "px";
@@ -148,32 +157,33 @@ class swiper{
 			if(count>0){
 				count --;
 				console.log(index,"move")
-				let eachleft = ((swiperItemWidth + swiperItemWidth * index) + translateStart)/(this.state.time/this.state.interval);//每次位移量
+				let eachleft = ((swiperItemWidth + swiperItemWidth * index) - translateStart)/(this.state.time/this.state.interval);//每次位移量
 				newleft += eachleft;
 				this.state._swiperList.style.left = -(translateStart + newleft) + "px";
 			}else{
 				this.state._translateStart = (swiperItemWidth + swiperItemWidth * index)
 				if(index == -1){
-					console.log("index = -1")
 					index = swiperItemLen - 1;
-					console.log("index变成2",index)
 					this.state._swiperList.style.left = -(swiperItemWidth * swiperItemLen) + "px";
 					this.state._translateStart = swiperItemWidth * swiperItemLen
-					console.log(this.state._translateStart)
 				}
 				if(index == swiperItemLen){
-					console.log("index = len-1 2")
 					index = 0;
 					this.state._swiperList.style.left = -swiperItemWidth + "px";
 					this.state._translateStart = swiperItemWidth
 				}
 				this.state.index = index;
-				console.log(index,"end")
+				console.log(index,"end");
 				clearInterval(timer)
 				this.state._isLock = false;
+				for(let i = 0 ;i < this.state._swiperPagination.length;i++ ){
+					this.state._swiperPagination[i].setAttribute("class","swiper-pagination-switch")
+				}
+				this.state._swiperPagination[index].setAttribute("class","swiper-pagination-switch active")
 			}
-		},50);
+		},20);
 		console.log(index)
+
 		console.log(translateStart,"translateStart")
 
 		// for(let i = 0;i < this.state._swiperItemLen;i++){
